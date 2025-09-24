@@ -78,7 +78,7 @@ export default function HostApplicationModal({
               value={reason}
               onChange={(e) => setReason(e.target.value)}
               placeholder="例：3年A組の文化祭出し物「プログラミング体験教室」の責任者として申請いたします。"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500"
               rows={4}
               required
               disabled={submitting}

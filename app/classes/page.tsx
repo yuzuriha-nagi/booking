@@ -2,12 +2,38 @@
 
 import { useAuth } from '@/hooks/useAuth'
 import { useUserRole } from '@/hooks/useUserRole'
-import { sampleClassEvents } from '@/lib/sampleData'
+import { ClassEvent } from '@/types'
+import { collection, onSnapshot, orderBy, query } from 'firebase/firestore'
+import { db } from '@/lib/firebase'
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 
 export default function ClassesPage() {
   const { user, loading } = useAuth()
   const { userRole, hasPermission, isAdmin, isHost, isVisitor } = useUserRole()
+  const [classEvents, setClassEvents] = useState<ClassEvent[]>([])
+  const [loadingEvents, setLoadingEvents] = useState(true)
+
+  useEffect(() => {
+    const q = query(collection(db, 'classEvents'), orderBy('createdAt', 'desc'))
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const events = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+        createdAt: doc.data().createdAt?.toDate() || new Date(),
+        updatedAt: doc.data().updatedAt?.toDate() || new Date(),
+      })) as ClassEvent[]
+
+      setClassEvents(events)
+      setLoadingEvents(false)
+    }, (error) => {
+      console.error('Error fetching class events:', error)
+      setLoadingEvents(false)
+    })
+
+    return () => unsubscribe()
+  }, [])
 
   if (loading) {
     return (
@@ -108,8 +134,25 @@ export default function ClassesPage() {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {sampleClassEvents.map((event) => (
+        {loadingEvents ? (
+          <div className="flex justify-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+          </div>
+        ) : classEvents.length === 0 ? (
+          <div className="bg-white rounded-lg shadow p-6 text-center">
+            <p className="text-gray-500 mb-4">まだクラスの出し物が登録されていません</p>
+            {isHost && (
+              <Link
+                href="/host/create-event"
+                className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+              >
+                出し物を登録する
+              </Link>
+            )}
+          </div>
+        ) : (
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {classEvents.map((event) => (
             <div
               key={event.id}
               className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow"
@@ -191,7 +234,8 @@ export default function ClassesPage() {
               </div>
             </div>
           ))}
-        </div>
+          </div>
+        )}
       </main>
     </div>
   )

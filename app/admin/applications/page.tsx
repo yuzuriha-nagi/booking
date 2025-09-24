@@ -176,7 +176,7 @@ export default function AdminApplicationsPage() {
 
                 <div className="mb-4">
                   <h4 className="text-sm font-medium text-gray-700 mb-2">申請理由</h4>
-                  <p className="text-sm text-gray-600 bg-gray-50 p-3 rounded">
+                  <p className="text-sm text-gray-900 bg-gray-50 p-3 rounded">
                     {app.reason}
                   </p>
                 </div>
