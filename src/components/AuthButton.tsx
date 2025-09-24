@@ -1,6 +1,7 @@
 'use client'
 
 import { useAuth } from '@/hooks/useAuth'
+import RoleSelector from './RoleSelector'
 
 export default function AuthButton() {
   const { user, loading, signInWithGoogle, logout } = useAuth()
@@ -16,15 +17,18 @@ export default function AuthButton() {
   if (user) {
     return (
       <div className="flex items-center space-x-4">
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center space-x-3">
           <img
             src={user.photoURL || '/default-avatar.png'}
             alt={user.displayName || 'User'}
             className="h-8 w-8 rounded-full"
           />
-          <span className="text-sm text-gray-700">
-            {user.displayName || user.email}
-          </span>
+          <div className="flex flex-col items-start">
+            <span className="text-sm text-gray-700">
+              {user.displayName || user.email}
+            </span>
+            <RoleSelector />
+          </div>
         </div>
         <button
           onClick={logout}

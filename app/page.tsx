@@ -1,6 +1,7 @@
 'use client'
 
 import AuthButton from '@/components/AuthButton'
+import AdminSetup from '@/components/AdminSetup'
 import { useAuth } from '@/hooks/useAuth'
 import Link from 'next/link'
 
@@ -22,6 +23,8 @@ export default function Home() {
       </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <AdminSetup />
+
         <div className="text-center mb-12">
           <h2 className="text-4xl font-bold text-gray-900 mb-4">
             文化祭クラス予約

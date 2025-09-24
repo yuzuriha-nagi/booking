@@ -1,11 +1,13 @@
 'use client'
 
 import { useAuth } from '@/hooks/useAuth'
+import { useUserRole } from '@/hooks/useUserRole'
 import { sampleClassEvents } from '@/lib/sampleData'
 import Link from 'next/link'
 
 export default function ClassesPage() {
   const { user, loading } = useAuth()
+  const { userRole, hasPermission, isAdmin, isHost, isVisitor } = useUserRole()
 
   if (loading) {
     return (
@@ -41,9 +43,47 @@ export default function ClassesPage() {
       <header className="bg-white shadow">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            <Link href="/" className="text-2xl font-bold text-gray-900">
-              高専文化祭 予約システム
-            </Link>
+            <div className="flex items-center space-x-6">
+              <Link href="/" className="text-2xl font-bold text-gray-900">
+                高専文化祭 予約システム
+              </Link>
+
+              <nav className="flex space-x-4">
+                <Link
+                  href="/classes"
+                  className="text-blue-600 font-medium"
+                >
+                  クラス一覧
+                </Link>
+
+                {isHost && (
+                  <Link
+                    href="/host/dashboard"
+                    className="text-green-600 hover:text-green-700"
+                  >
+                    主催者ダッシュボード
+                  </Link>
+                )}
+
+                {isAdmin && (
+                  <>
+                    <Link
+                      href="/admin/applications"
+                      className="text-red-600 hover:text-red-700"
+                    >
+                      申請管理
+                    </Link>
+                    <Link
+                      href="/admin/dashboard"
+                      className="text-red-600 hover:text-red-700"
+                    >
+                      管理者ダッシュボード
+                    </Link>
+                  </>
+                )}
+              </nav>
+            </div>
+
             <div className="flex items-center space-x-2">
               <img
                 src={user.photoURL || '/default-avatar.png'}
@@ -122,12 +162,32 @@ export default function ClassesPage() {
                   ))}
                 </div>
 
-                <Link
-                  href={`/classes/${event.id}`}
-                  className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors text-center block"
-                >
-                  詳細・予約
-                </Link>
+                <div className="space-y-2">
+                  <Link
+                    href={`/classes/${event.id}`}
+                    className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors text-center block"
+                  >
+                    {isVisitor ? '詳細・予約' : '詳細を見る'}
+                  </Link>
+
+                  {isHost && (
+                    <Link
+                      href={`/classes/${event.id}/manage`}
+                      className="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 transition-colors text-center block"
+                    >
+                      管理・設定
+                    </Link>
+                  )}
+
+                  {isAdmin && (
+                    <Link
+                      href={`/admin/classes/${event.id}`}
+                      className="w-full bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700 transition-colors text-center block"
+                    >
+                      管理者設定
+                    </Link>
+                  )}
+                </div>
               </div>
             </div>
           ))}

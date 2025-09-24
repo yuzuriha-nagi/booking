@@ -1,10 +1,14 @@
+export type UserRole = 'visitor' | 'host' | 'admin'
+
 export interface User {
   id: string
   email: string
   name: string
   photoURL?: string
-  userType: 'student' | 'parent' | 'business' | 'visitor'
+  role: UserRole
+  userType?: 'student' | 'parent' | 'business' | 'visitor'
   createdAt: Date
+  updatedAt: Date
 }
 
 export interface ClassEvent {
@@ -50,4 +54,20 @@ export interface Reservation {
 export interface BookingFormData {
   numberOfPeople: number
   specialRequests?: string
+}
+
+export interface RoleApplication {
+  id: string
+  userId: string
+  userName: string
+  userEmail: string
+  currentRole: UserRole
+  requestedRole: UserRole
+  reason: string
+  status: 'pending' | 'approved' | 'rejected'
+  createdAt: Date
+  updatedAt: Date
+  reviewedBy?: string
+  reviewedAt?: Date
+  reviewComment?: string
 }
