@@ -2,7 +2,6 @@
 
 import { useAuth } from '@/hooks/useAuth'
 import { useUserRole } from '@/hooks/useUserRole'
-import HostNameSync from '@/components/HostNameSync'
 import Link from 'next/link'
 import dynamic from 'next/dynamic'
 
@@ -83,8 +82,6 @@ function AdminDashboardPageComponent() {
         </div>
 
         <div className="grid gap-6">
-          <HostNameSync />
-
           <div className="bg-white border border-gray-200 p-6">
             <h2 className="text-xl font-semibold text-black mb-4">管理機能</h2>
             <div className="grid md:grid-cols-2 gap-4">
