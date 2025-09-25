@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useAuth } from '@/hooks/useAuth'
 import { useUserRole } from '@/hooks/useUserRole'
-import { collection, getDocs, doc, getDoc, updateDoc, writeBatch } from 'firebase/firestore'
+import { collection, getDocs, doc, getDoc, writeBatch } from 'firebase/firestore'
 import { db } from '@/lib/firebase'
 
 export default function HostNameSync() {

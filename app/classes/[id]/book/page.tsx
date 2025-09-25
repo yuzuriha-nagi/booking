@@ -255,7 +255,7 @@ export default function BookEventPage() {
                 id="numberOfPeople"
                 name="numberOfPeople"
                 value={formData.numberOfPeople}
-                onChange={(e) => handleInputChange(e as any)}
+                onChange={(e) => handleInputChange(e as React.ChangeEvent<HTMLSelectElement>)}
                 className="w-full px-4 py-3 border border-gray-300 focus:outline-none focus:border-black text-black text-lg"
                 required
                 disabled={submitting}

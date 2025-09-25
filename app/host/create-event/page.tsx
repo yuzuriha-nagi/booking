@@ -116,7 +116,7 @@ export default function CreateEventPage() {
       if (selectedImage) {
         try {
           imageUrl = await uploadImageToCloudinary(selectedImage)
-        } catch (error) {
+        } catch {
           alert('画像のアップロードに失敗しました。もう一度お試しください。')
           setSubmitting(false)
           return

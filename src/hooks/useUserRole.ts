@@ -2,7 +2,7 @@
 
 import { useAuth } from './useAuth'
 import { UserRole } from '@/types'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore'
 import { db } from '@/lib/firebase'
 
@@ -11,13 +11,7 @@ export const useUserRole = () => {
   const [userRole, setUserRole] = useState<UserRole>('visitor')
   const [roleLoading, setRoleLoading] = useState(false)
 
-  useEffect(() => {
-    if (user && !loading) {
-      loadUserRole()
-    }
-  }, [user, loading])
-
-  const loadUserRole = async () => {
+  const loadUserRole = useCallback(async () => {
     if (!user) return
 
     setRoleLoading(true)
@@ -48,7 +42,13 @@ export const useUserRole = () => {
     } finally {
       setRoleLoading(false)
     }
-  }
+  }, [user])
+
+  useEffect(() => {
+    if (user && !loading) {
+      loadUserRole()
+    }
+  }, [user, loading, loadUserRole])
 
   const updateUserRole = async (newRole: UserRole) => {
     if (!user) return false

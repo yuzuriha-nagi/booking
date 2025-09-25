@@ -10,7 +10,7 @@ import Link from 'next/link'
 
 export default function ClassesPage() {
   const { user, loading } = useAuth()
-  const { userRole, hasPermission, isAdmin, isHost, isVisitor } = useUserRole()
+  const { isAdmin, isHost, isVisitor } = useUserRole()
   const [classEvents, setClassEvents] = useState<ClassEvent[]>([])
   const [loadingEvents, setLoadingEvents] = useState(true)
   const [hostNames, setHostNames] = useState<Record<string, string>>({})

@@ -98,17 +98,18 @@ export default function AdminSetup() {
       console.error('管理者作成エラー:', error)
       console.error('エラー詳細:', {
         message: error instanceof Error ? error.message : String(error),
-        code: (error as any)?.code,
-        details: (error as any)?.details
+        code: (error as { code?: string })?.code,
+        details: (error as { details?: unknown })?.details
       })
 
       // より具体的なエラーメッセージ
       let errorMessage = '管理者の作成に失敗しました。'
-      if ((error as any)?.code === 'not-found') {
+      const errorCode = (error as { code?: string })?.code
+      if (errorCode === 'not-found') {
         errorMessage += 'ユーザードキュメントが存在しません。'
-      } else if ((error as any)?.code === 'permission-denied') {
+      } else if (errorCode === 'permission-denied') {
         errorMessage += 'Firestoreの権限が不足しています。'
-      } else if ((error as any)?.code === 'unavailable') {
+      } else if (errorCode === 'unavailable') {
         errorMessage += 'Firestoreに接続できません。'
       }
 
