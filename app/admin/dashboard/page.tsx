@@ -2,7 +2,6 @@
 
 import { useAuth } from '@/hooks/useAuth'
 import { useUserRole } from '@/hooks/useUserRole'
-import HostNameSync from '@/components/HostNameSync'
 import Link from 'next/link'
 import dynamic from 'next/dynamic'
 
@@ -46,7 +45,7 @@ function AdminDashboardPageComponent() {
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-6">
               <Link href="/" className="text-2xl font-bold text-black">
-                高専文化祭 予約システム
+                高専祭予約
               </Link>
               <nav className="flex space-x-4">
                 <Link href="/classes" className="text-black hover:text-gray-600">
@@ -77,14 +76,10 @@ function AdminDashboardPageComponent() {
           <h1 className="text-3xl font-bold text-black mb-2">
             管理者ダッシュボード
           </h1>
-          <p className="text-black">
-            システム全体の管理と設定を行えます。
-          </p>
+
         </div>
 
         <div className="grid gap-6">
-          <HostNameSync />
-
           <div className="bg-white border border-gray-200 p-6">
             <h2 className="text-xl font-semibold text-black mb-4">管理機能</h2>
             <div className="grid md:grid-cols-2 gap-4">

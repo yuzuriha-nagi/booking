@@ -76,7 +76,7 @@ export default function HostDashboardPage() {
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-6">
               <Link href="/" className="text-2xl font-bold text-black">
-                高専文化祭 予約システム
+                高専祭予約
               </Link>
               <nav className="flex space-x-4">
                 <Link href="/classes" className="text-black hover:text-gray-600">
