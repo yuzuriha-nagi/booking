@@ -183,7 +183,9 @@ export default function AdminApplicationsPage() {
 
                 <div className="flex justify-between items-center text-sm text-gray-500">
                   <span>
-                    申請日: {app.createdAt?.toDate?.()?.toLocaleDateString() || '不明'}
+                    申請日: {app.createdAt ?
+                      new Date(app.createdAt.toString()).toLocaleDateString()
+                      : '不明'}
                   </span>
                   {app.status === 'pending' && (
                     <div className="flex space-x-2">
