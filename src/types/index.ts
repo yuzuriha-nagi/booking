@@ -14,14 +14,15 @@ export interface User {
 export interface ClassEvent {
   id: string
   className: string
-  grade: string
   eventName: string
   description: string
   location: string
   maxCapacity: number
   duration: number // minutes
   imageUrl?: string
-  tags: string[]
+  hostUserId: string
+  hostUserName: string
+  hostUserEmail: string
   createdAt: Date
   updatedAt: Date
 }

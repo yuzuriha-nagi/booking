@@ -141,7 +141,7 @@ export default function AdminApplicationsPage() {
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
             主催者申請管理
           </h1>
-          <p className="text-gray-600">
+          <p className="text-gray-900">
             来場者からの主催者申請を審査・管理できます。
           </p>
         </div>

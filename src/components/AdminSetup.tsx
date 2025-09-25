@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/hooks/useAuth'
-import { collection, query, where, getDocs, doc, updateDoc } from 'firebase/firestore'
+import { collection, query, where, getDocs, doc, updateDoc, setDoc, getDoc } from 'firebase/firestore'
 import { db } from '@/lib/firebase'
 
 export default function AdminSetup() {
@@ -34,23 +34,85 @@ export default function AdminSetup() {
 
   const handleSetupSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!user || setupKey !== ADMIN_SETUP_KEY) {
+
+    console.log('管理者セットアップ開始:', {
+      userExists: !!user,
+      userUid: user?.uid,
+      enteredKey: setupKey,
+      expectedKey: ADMIN_SETUP_KEY,
+      keyMatches: setupKey === ADMIN_SETUP_KEY
+    })
+
+    if (!user) {
+      alert('ログインしてください')
+      return
+    }
+
+    if (setupKey !== ADMIN_SETUP_KEY) {
+      console.error('セットアップキー不一致:', {
+        entered: setupKey,
+        expected: ADMIN_SETUP_KEY
+      })
       alert('セットアップキーが正しくありません')
       return
     }
 
     setLoading(true)
     try {
-      await updateDoc(doc(db, 'users', user.uid), {
-        role: 'admin',
-        updatedAt: new Date(),
+      console.log('Firestore更新開始:', {
+        collection: 'users',
+        docId: user.uid,
+        updateData: {
+          role: 'admin',
+          updatedAt: new Date()
+        }
       })
 
+      // まずユーザードキュメントが存在するか確認
+      const userDocRef = doc(db, 'users', user.uid)
+      const userDocSnap = await getDoc(userDocRef)
+
+      if (userDocSnap.exists()) {
+        // ドキュメントが存在する場合は更新
+        await updateDoc(userDocRef, {
+          role: 'admin',
+          updatedAt: new Date(),
+        })
+        console.log('既存ユーザードキュメントを更新')
+      } else {
+        // ドキュメントが存在しない場合は作成
+        await setDoc(userDocRef, {
+          email: user.email || '',
+          displayName: user.displayName || '管理者',
+          role: 'admin',
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        })
+        console.log('新しいユーザードキュメントを作成')
+      }
+
+      console.log('管理者権限付与成功')
       alert('管理者権限が付与されました。ページをリロードしてください。')
       window.location.reload()
     } catch (error) {
-      console.error('Error creating admin:', error)
-      alert('管理者の作成に失敗しました')
+      console.error('管理者作成エラー:', error)
+      console.error('エラー詳細:', {
+        message: error instanceof Error ? error.message : String(error),
+        code: (error as any)?.code,
+        details: (error as any)?.details
+      })
+
+      // より具体的なエラーメッセージ
+      let errorMessage = '管理者の作成に失敗しました。'
+      if ((error as any)?.code === 'not-found') {
+        errorMessage += 'ユーザードキュメントが存在しません。'
+      } else if ((error as any)?.code === 'permission-denied') {
+        errorMessage += 'Firestoreの権限が不足しています。'
+      } else if ((error as any)?.code === 'unavailable') {
+        errorMessage += 'Firestoreに接続できません。'
+      }
+
+      alert(errorMessage)
     } finally {
       setLoading(false)
     }

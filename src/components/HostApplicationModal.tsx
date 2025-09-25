@@ -70,7 +70,7 @@ export default function HostApplicationModal({
               申請理由を詳しく記入してください。
             </p>
 
-            <label htmlFor="reason" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="reason" className="block text-sm font-medium text-gray-900 mb-2">
               申請理由 <span className="text-red-500">*</span>
             </label>
             <textarea
