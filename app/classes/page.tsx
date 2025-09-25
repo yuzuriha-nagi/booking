@@ -261,10 +261,10 @@ export default function ClassesPage() {
 
                   {isAdmin && (
                     <Link
-                      href={`/admin/classes/${event.id}`}
+                      href={`/classes/${event.id}`}
                       className="w-full bg-white text-black border border-black py-3 px-4 font-medium hover:bg-black hover:text-white transition-colors text-center block"
                     >
-                      管理者設定
+                      詳細・編集
                     </Link>
                   )}
                 </div>
