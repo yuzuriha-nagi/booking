@@ -14,7 +14,7 @@ export default function Home() {
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-4">
               <h1 className="text-2xl font-bold text-black">
-                高専文化祭 予約システム
+                高専祭予約
               </h1>
             </div>
             <AuthButton />
@@ -28,7 +28,7 @@ export default function Home() {
         <div className="text-center">
           <div className="bg-white border border-gray-200 p-12 max-w-lg mx-auto">
             <h3 className="text-3xl font-semibold text-black mb-6">
-              高専文化祭 予約システム
+              高専祭予約
             </h3>
             <div className="space-y-6">
               <AuthButton />
