@@ -67,7 +67,7 @@ export default function BookEventPage() {
     fetchEvent()
   }, [id, slotId, selectedDate, router])
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target
     setFormData(prev => ({
       ...prev,
@@ -255,7 +255,7 @@ export default function BookEventPage() {
                 id="numberOfPeople"
                 name="numberOfPeople"
                 value={formData.numberOfPeople}
-                onChange={(e) => handleInputChange(e as React.ChangeEvent<HTMLSelectElement>)}
+                onChange={handleInputChange}
                 className="w-full px-4 py-3 border border-gray-300 focus:outline-none focus:border-black text-black text-lg"
                 required
                 disabled={submitting}
