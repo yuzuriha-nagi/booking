@@ -336,6 +336,7 @@ export default function CreateEventPage() {
             {imagePreview && (
               <div className="mt-3">
                 <p className="text-sm text-black mb-2">プレビュー:</p>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={imagePreview}
                   alt="プレビュー"
