@@ -153,6 +153,7 @@ export default function ClassEventDetailPage() {
         <div className="bg-white border border-gray-200 overflow-hidden">
           <div className="h-64 relative overflow-hidden">
             {event.imageUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={event.imageUrl}
                 alt={event.eventName}

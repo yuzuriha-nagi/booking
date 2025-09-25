@@ -180,6 +180,7 @@ export default function ClassesPage() {
             >
               <div className="h-48 relative overflow-hidden">
                 {event.imageUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
                   <img
                     src={event.imageUrl}
                     alt={event.eventName}

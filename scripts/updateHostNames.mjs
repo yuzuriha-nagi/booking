@@ -1,6 +1,6 @@
 // 既存イベントの主催者名を現在の表示名に更新するスクリプト
-const { initializeApp } = require('firebase/app');
-const { getFirestore, collection, getDocs, doc, updateDoc, getDoc } = require('firebase/firestore');
+import { initializeApp } from 'firebase/app';
+import { getFirestore, collection, getDocs, doc, updateDoc, getDoc } from 'firebase/firestore';
 
 const firebaseConfig = {
   // ここにFirebaseの設定を追加
