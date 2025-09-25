@@ -4,8 +4,9 @@ import { useAuth } from '@/hooks/useAuth'
 import { useUserRole } from '@/hooks/useUserRole'
 import HostNameSync from '@/components/HostNameSync'
 import Link from 'next/link'
+import dynamic from 'next/dynamic'
 
-export default function AdminDashboardPage() {
+function AdminDashboardPageComponent() {
   const { user, loading } = useAuth()
   const { isAdmin, roleLoading } = useUserRole()
 
