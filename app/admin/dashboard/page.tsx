@@ -115,3 +115,9 @@ export default function AdminDashboardPage() {
     </div>
   )
 }
+
+const AdminDashboardPage = dynamic(() => Promise.resolve(AdminDashboardPageComponent), {
+  ssr: false,
+})
+
+export default AdminDashboardPage
