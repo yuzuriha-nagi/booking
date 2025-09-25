@@ -4,11 +4,10 @@ import { useEffect, useState } from 'react'
 import { useAuth } from '@/hooks/useAuth'
 import { useUserRole } from '@/hooks/useUserRole'
 import { RoleApplication } from '@/types'
-import { collection, query, orderBy, onSnapshot, doc, updateDoc } from 'firebase/firestore'
-import { db } from '@/lib/firebase'
 import Link from 'next/link'
+import dynamic from 'next/dynamic'
 
-export default function AdminApplicationsPage() {
+function AdminApplicationsPageComponent() {
   const { user, loading } = useAuth()
   const { isAdmin, roleLoading } = useUserRole()
   const [applications, setApplications] = useState<RoleApplication[]>([])
@@ -17,25 +16,40 @@ export default function AdminApplicationsPage() {
   useEffect(() => {
     if (!user || !isAdmin || loading || roleLoading) return
 
-    const q = query(
-      collection(db, 'roleApplications'),
-      orderBy('createdAt', 'desc')
-    )
+    const loadApplications = async () => {
+      try {
+        const { collection, query, orderBy, onSnapshot } = await import('firebase/firestore')
+        const { db } = await import('@/lib/firebase')
 
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const apps = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      })) as RoleApplication[]
-      setApplications(apps)
-      setLoadingApplications(false)
-    })
+        const q = query(
+          collection(db, 'roleApplications'),
+          orderBy('createdAt', 'desc')
+        )
 
-    return () => unsubscribe()
+        const unsubscribe = onSnapshot(q, (snapshot) => {
+          const apps = snapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data()
+          })) as RoleApplication[]
+          setApplications(apps)
+          setLoadingApplications(false)
+        })
+
+        return unsubscribe
+      } catch (error) {
+        console.error('Failed to load applications:', error)
+        setLoadingApplications(false)
+      }
+    }
+
+    loadApplications()
   }, [user, isAdmin, loading, roleLoading])
 
   const handleApproval = async (applicationId: string, userId: string, approve: boolean) => {
     try {
+      const { doc, updateDoc } = await import('firebase/firestore')
+      const { db } = await import('@/lib/firebase')
+
       // 申請の状態を更新
       await updateDoc(doc(db, 'roleApplications', applicationId), {
         status: approve ? 'approved' : 'rejected',
@@ -212,3 +226,9 @@ export default function AdminApplicationsPage() {
     </div>
   )
 }
+
+const AdminApplicationsPage = dynamic(() => Promise.resolve(AdminApplicationsPageComponent), {
+  ssr: false,
+})
+
+export default AdminApplicationsPage
