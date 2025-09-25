@@ -12,6 +12,7 @@ function AdminApplicationsPageComponent() {
   const { isAdmin, roleLoading } = useUserRole()
   const [applications, setApplications] = useState<RoleApplication[]>([])
   const [loadingApplications, setLoadingApplications] = useState(true)
+  const [usersData, setUsersData] = useState<Record<string, { displayName?: string; email?: string } | null>>({})
 
   useEffect(() => {
     if (!user || !isAdmin || loading || roleLoading) return
@@ -26,11 +27,33 @@ function AdminApplicationsPageComponent() {
           orderBy('createdAt', 'desc')
         )
 
-        const unsubscribe = onSnapshot(q, (snapshot) => {
+        const unsubscribe = onSnapshot(q, async (snapshot) => {
           const apps = snapshot.docs.map(doc => ({
             id: doc.id,
             ...doc.data()
           })) as RoleApplication[]
+
+          // 各申請者のユーザー情報を取得
+          const { getDoc, doc } = await import('firebase/firestore')
+          const { db } = await import('@/lib/firebase')
+          const userPromises = apps.map(async (app) => {
+            try {
+              const userDoc = await getDoc(doc(db, 'users', app.userId))
+              if (userDoc.exists()) {
+                return { [app.userId]: userDoc.data() }
+              }
+            } catch (error) {
+              console.error('Error fetching user data:', error)
+            }
+            return { [app.userId]: null }
+          })
+
+          const userResults = await Promise.all(userPromises)
+          const usersMap = userResults.reduce((acc: Record<string, { displayName?: string; email?: string } | null>, curr) => {
+            return { ...acc, ...curr }
+          }, {})
+
+          setUsersData(usersMap)
           setApplications(apps)
           setLoadingApplications(false)
         })
@@ -175,7 +198,7 @@ function AdminApplicationsPageComponent() {
                 <div className="flex justify-between items-start mb-4">
                   <div>
                     <h3 className="text-lg font-semibold text-gray-900">
-                      {app.userName}
+                      {usersData[app.userId]?.displayName || app.userName}
                     </h3>
                     <p className="text-sm text-gray-600">{app.userEmail}</p>
                   </div>
