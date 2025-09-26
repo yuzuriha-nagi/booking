@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { User, onAuthStateChanged, signInWithPopup, GoogleAuthProvider, signOut } from 'firebase/auth'
+import { User, onAuthStateChanged, signInWithPopup, GoogleAuthProvider, GithubAuthProvider, signOut } from 'firebase/auth'
 import { auth } from '@/lib/firebase'
 
 export const useAuth = () => {
@@ -26,6 +26,15 @@ export const useAuth = () => {
     }
   }
 
+  const signInWithGithub = async () => {
+    const provider = new GithubAuthProvider()
+    try {
+      await signInWithPopup(auth, provider)
+    } catch (error) {
+      console.error('GitHub sign-in error:', error)
+    }
+  }
+
   const logout = async () => {
     try {
       await signOut(auth)
@@ -38,6 +47,7 @@ export const useAuth = () => {
     user,
     loading,
     signInWithGoogle,
+    signInWithGithub,
     logout
   }
 }
