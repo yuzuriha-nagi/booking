@@ -1,9 +1,9 @@
 'use client'
 
-import AuthButton from '@/components/AuthButton'
-import AdminSetup from '@/components/AdminSetup'
-import { useAuth } from '@/hooks/useAuth'
-import { useUserRole } from '@/hooks/useUserRole'
+import AuthButton from '../src/components/AuthButton'
+import AdminSetup from '../src/components/AdminSetup'
+import { useAuth } from '../src/hooks/useAuth'
+import { useUserRole } from '../src/hooks/useUserRole'
 import Link from 'next/link'
 
 export default function Home() {
