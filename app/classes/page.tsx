@@ -9,7 +9,7 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 
 export default function ClassesPage() {
-  const { user, loading } = useAuth()
+  const { user, loading, logout } = useAuth()
   const { isAdmin, isHost, isVisitor } = useUserRole()
   const [classEvents, setClassEvents] = useState<ClassEvent[]>([])
   const [loadingEvents, setLoadingEvents] = useState(true)
@@ -133,13 +133,19 @@ export default function ClassesPage() {
               </nav>
             </div>
 
-            <div className="flex items-center">
+            <div className="flex items-center space-x-4">
               <Link
                 href="/profile"
                 className="text-sm text-black hover:text-gray-600 transition-colors"
               >
                 {user.displayName || '名無し'}
               </Link>
+              <button
+                onClick={logout}
+                className="px-4 py-2 text-sm bg-black text-white hover:bg-gray-800 transition-colors"
+              >
+                ログアウト
+              </button>
             </div>
           </div>
         </div>
