@@ -106,12 +106,20 @@ export default function ClassesPage() {
                 </Link>
 
                 {isHost && (
-                  <Link
-                    href="/host/dashboard"
-                    className="text-black hover:text-gray-600"
-                  >
-                    主催者ダッシュボード
-                  </Link>
+                  <>
+                    <Link
+                      href="/host/dashboard"
+                      className="text-black hover:text-gray-600"
+                    >
+                      主催者ダッシュボード
+                    </Link>
+                    <Link
+                      href="/host/reservations"
+                      className="text-black hover:text-gray-600"
+                    >
+                      予約一覧
+                    </Link>
+                  </>
                 )}
 
                 {isAdmin && (

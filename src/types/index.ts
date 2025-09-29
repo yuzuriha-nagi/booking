@@ -23,25 +23,16 @@ export interface ClassEvent {
   hostUserId: string
   hostUserName: string
   hostUserEmail: string
+  notificationThreshold?: number
   createdAt: Date
   updatedAt: Date
 }
 
-export interface TimeSlot {
-  id: string
-  classEventId: string
-  startTime: Date
-  endTime: Date
-  currentBookings: number
-  maxCapacity: number
-  isAvailable: boolean
-}
 
 export interface Reservation {
   id: string
   userId: string
   classEventId: string
-  timeSlotId: string
   userName: string
   userEmail: string
   numberOfPeople: number
