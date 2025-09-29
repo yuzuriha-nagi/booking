@@ -5,7 +5,7 @@ import { useAuth } from '../../../src/hooks/useAuth'
 import { useUserRole } from '../../../src/hooks/useUserRole'
 import { usePushNotifications } from '../../../src/hooks/usePushNotifications'
 import { ClassEvent } from '../../../src/types'
-import { collection, query, where, onSnapshot, orderBy, doc, getDoc, updateDoc, setDoc } from 'firebase/firestore'
+import { collection, query, where, onSnapshot, updateDoc, doc } from 'firebase/firestore'
 import { db } from '../../../src/lib/firebase'
 import Link from 'next/link'
 

@@ -25,4 +25,15 @@ export const auth: Auth = app ? getAuth(app) : ({} as any)
 export const db: Firestore = app ? getFirestore(app) : ({} as any)
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const storage: FirebaseStorage = app ? getStorage(app) : ({} as any)
+
+// 開発環境でエミュレーターを使用（現在は無効化）
+// if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
+//   try {
+//     connectAuthEmulator(auth, 'http://localhost:9099')
+//     connectFirestoreEmulator(db, 'localhost', 8080)
+//   } catch (error) {
+//     console.log('Emulator connection error (already connected):', error)
+//   }
+// }
+
 export default app

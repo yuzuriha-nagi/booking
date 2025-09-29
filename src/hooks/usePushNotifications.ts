@@ -102,7 +102,7 @@ export const usePushNotifications = () => {
     }
   }
 
-  const sendNotification = async (userIds: string[], title: string, body: string, data?: any) => {
+  const sendNotification = async (userIds: string[], title: string, body: string, data?: Record<string, unknown>) => {
     try {
       for (const userId of userIds) {
         const subscriptionDoc = await getDoc(doc(db, 'pushSubscriptions', userId))
