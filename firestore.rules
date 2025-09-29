@@ -1,0 +1,79 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ユーザーは認証済みである必要がある
+    match /{document=**} {
+      allow read, write: if request.auth != null;
+    }
+
+    // 特別なルール：classEventsコレクション
+    match /classEvents/{document} {
+      // 読み取りは認証済みユーザーなら誰でも可能
+      allow read: if request.auth != null;
+      // 作成・更新は主催者か管理者のみ
+      allow create, update: if request.auth != null
+        && (request.auth.uid == resource.data.hostUserId
+            || request.auth.token.admin == true);
+      // 削除は管理者のみ
+      allow delete: if request.auth != null
+        && request.auth.token.admin == true;
+    }
+
+    // 予約コレクション
+    match /reservations/{document} {
+      // 読み取りは予約者本人、イベント主催者、管理者
+      allow read: if request.auth != null
+        && (request.auth.uid == resource.data.userId
+            || request.auth.uid == resource.data.hostUserId
+            || request.auth.token.admin == true);
+      // 作成は認証済みユーザー
+      allow create: if request.auth != null
+        && request.auth.uid == request.resource.data.userId;
+      // 更新は予約者本人、イベント主催者、管理者
+      allow update: if request.auth != null
+        && (request.auth.uid == resource.data.userId
+            || request.auth.token.admin == true);
+      // 削除は管理者のみ
+      allow delete: if request.auth != null
+        && request.auth.token.admin == true;
+    }
+
+    // ユーザープロファイル
+    match /users/{userId} {
+      // 読み取りは本人か管理者
+      allow read: if request.auth != null
+        && (request.auth.uid == userId
+            || request.auth.token.admin == true);
+      // 作成・更新は本人のみ
+      allow create, update: if request.auth != null
+        && request.auth.uid == userId;
+      // 削除は管理者のみ
+      allow delete: if request.auth != null
+        && request.auth.token.admin == true;
+    }
+
+    // プッシュ通知サブスクリプション
+    match /pushSubscriptions/{userId} {
+      // 読み取り・作成・更新・削除は本人のみ
+      allow read, write: if request.auth != null
+        && request.auth.uid == userId;
+    }
+
+    // 役割申請
+    match /roleApplications/{document} {
+      // 読み取りは申請者本人か管理者
+      allow read: if request.auth != null
+        && (request.auth.uid == resource.data.userId
+            || request.auth.token.admin == true);
+      // 作成は認証済みユーザー
+      allow create: if request.auth != null
+        && request.auth.uid == request.resource.data.userId;
+      // 更新は管理者のみ
+      allow update: if request.auth != null
+        && request.auth.token.admin == true;
+      // 削除は管理者のみ
+      allow delete: if request.auth != null
+        && request.auth.token.admin == true;
+    }
+  }
+}

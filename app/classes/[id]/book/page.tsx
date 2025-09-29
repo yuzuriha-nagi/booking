@@ -1,36 +1,31 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useParams, useRouter, useSearchParams } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
 import { useUserRole } from '@/hooks/useUserRole'
-import { ClassEvent, TimeSlot, BookingFormData } from '@/types'
-import { doc, getDoc, collection, addDoc } from 'firebase/firestore'
+import { ClassEvent, BookingFormData } from '@/types'
+import { doc, getDoc, collection, addDoc, query, where, getDocs } from 'firebase/firestore'
 import { db } from '@/lib/firebase'
-import { generateTimeSlots } from '@/lib/sampleData'
 import Link from 'next/link'
 
 export default function BookEventPage() {
   const { id } = useParams()
   const router = useRouter()
-  const searchParams = useSearchParams()
   const { user, loading } = useAuth()
   const { isVisitor } = useUserRole()
 
-  const slotId = searchParams.get('slot')
-  const selectedDate = searchParams.get('date') || new Date().toISOString().split('T')[0]
-
   const [event, setEvent] = useState<ClassEvent | null>(null)
-  const [selectedSlot, setSelectedSlot] = useState<TimeSlot | null>(null)
   const [loadingEvent, setLoadingEvent] = useState(true)
   const [submitting, setSubmitting] = useState(false)
+  const [currentReservations, setCurrentReservations] = useState(0)
   const [formData, setFormData] = useState<BookingFormData>({
     numberOfPeople: 1,
     specialRequests: ''
   })
 
   useEffect(() => {
-    const fetchEvent = async () => {
+    const fetchEventAndReservations = async () => {
       if (!id) return
 
       try {
@@ -45,14 +40,15 @@ export default function BookEventPage() {
 
           setEvent(eventData)
 
-          // Find selected time slot
-          const timeSlots = generateTimeSlots(eventData, new Date(selectedDate))
-          const slot = timeSlots.find(slot => slot.id === slotId)
-          if (slot) {
-            setSelectedSlot(slot)
-          } else {
-            router.push(`/classes/${id}`)
-          }
+          // 現在の予約数を取得
+          const reservationsSnapshot = await getDocs(
+            query(collection(db, 'reservations'), where('classEventId', '==', id))
+          )
+          const totalReservations = reservationsSnapshot.docs.reduce((sum, doc) => {
+            const data = doc.data()
+            return sum + (data.numberOfPeople || 0)
+          }, 0)
+          setCurrentReservations(totalReservations)
         } else {
           router.push('/classes')
         }
@@ -64,8 +60,8 @@ export default function BookEventPage() {
       }
     }
 
-    fetchEvent()
-  }, [id, slotId, selectedDate, router])
+    fetchEventAndReservations()
+  }, [id, router])
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target
@@ -81,20 +77,22 @@ export default function BookEventPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!user || !event || !selectedSlot) return
+    if (!user || !event) return
 
     setSubmitting(true)
     try {
       const reservationData = {
         userId: user.uid,
         classEventId: event.id,
-        timeSlotId: selectedSlot.id,
         userName: user.displayName || '名無し',
         userEmail: user.email || '',
         numberOfPeople: formData.numberOfPeople,
         specialRequests: formData.specialRequests || '',
         status: 'confirmed' as const,
         reservationCode: generateReservationCode(),
+        eventName: event.eventName,
+        className: event.className,
+        location: event.location,
         createdAt: new Date(),
         updatedAt: new Date(),
       }
@@ -140,7 +138,7 @@ export default function BookEventPage() {
     )
   }
 
-  if (!event || !selectedSlot) {
+  if (!event) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
@@ -226,16 +224,20 @@ export default function BookEventPage() {
                 <span className="font-medium text-black">{event.location}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-black">日時</span>
+                <span className="text-black">最大収容人数</span>
+                <span className="font-medium text-black">{event.maxCapacity}人</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-black">現在の予約数</span>
+                <span className="font-medium text-black">{currentReservations}人</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-black">空き状況</span>
                 <span className="font-medium text-black">
-                  {new Date(selectedDate).toLocaleDateString('ja-JP')} {' '}
-                  {selectedSlot.startTime.toLocaleTimeString('ja-JP', {
-                    hour: '2-digit',
-                    minute: '2-digit'
-                  })} - {selectedSlot.endTime.toLocaleTimeString('ja-JP', {
-                    hour: '2-digit',
-                    minute: '2-digit'
-                  })}
+                  {currentReservations >= event.maxCapacity
+                    ? `定員超過中 (+${currentReservations - event.maxCapacity}人)`
+                    : `残り${event.maxCapacity - currentReservations}人`
+                  }
                 </span>
               </div>
               <div className="flex justify-between">
@@ -260,12 +262,12 @@ export default function BookEventPage() {
                 required
                 disabled={submitting}
               >
-                {Array.from({ length: Math.min(selectedSlot.maxCapacity, 10) }, (_, i) => i + 1).map(num => (
+                {Array.from({ length: 10 }, (_, i) => i + 1).map(num => (
                   <option key={num} value={num}>{num}人</option>
                 ))}
               </select>
               <p className="mt-2 text-sm text-black">
-                最大{selectedSlot.maxCapacity}人まで選択可能です
+                最大10人まで選択可能です
               </p>
             </div>
 

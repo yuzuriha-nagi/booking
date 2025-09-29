@@ -4,10 +4,9 @@ import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
 import { useUserRole } from '@/hooks/useUserRole'
-import { ClassEvent, TimeSlot } from '@/types'
-import { doc, getDoc } from 'firebase/firestore'
+import { ClassEvent } from '@/types'
+import { doc, getDoc, collection, query, where, getDocs } from 'firebase/firestore'
 import { db } from '@/lib/firebase'
-import { generateTimeSlots } from '@/lib/sampleData'
 import Link from 'next/link'
 
 export default function ClassEventDetailPage() {
@@ -16,14 +15,11 @@ export default function ClassEventDetailPage() {
   const { user, loading } = useAuth()
   const { isVisitor, isHost, isAdmin } = useUserRole()
   const [event, setEvent] = useState<ClassEvent | null>(null)
-  const [timeSlots, setTimeSlots] = useState<TimeSlot[]>([])
-  const [selectedDate, setSelectedDate] = useState<string>(
-    new Date().toISOString().split('T')[0]
-  )
+  const [currentReservations, setCurrentReservations] = useState(0)
   const [loadingEvent, setLoadingEvent] = useState(true)
 
   useEffect(() => {
-    const fetchEvent = async () => {
+    const fetchEventAndReservations = async () => {
       if (!id) return
 
       try {
@@ -38,9 +34,15 @@ export default function ClassEventDetailPage() {
 
           setEvent(eventData)
 
-          // Generate time slots for selected date
-          const slots = generateTimeSlots(eventData, new Date(selectedDate))
-          setTimeSlots(slots)
+          // 現在の予約数を取得
+          const reservationsSnapshot = await getDocs(
+            query(collection(db, 'reservations'), where('classEventId', '==', id))
+          )
+          const totalReservations = reservationsSnapshot.docs.reduce((sum, doc) => {
+            const data = doc.data()
+            return sum + (data.numberOfPeople || 0)
+          }, 0)
+          setCurrentReservations(totalReservations)
         } else {
           router.push('/classes')
         }
@@ -52,8 +54,8 @@ export default function ClassEventDetailPage() {
       }
     }
 
-    fetchEvent()
-  }, [id, selectedDate, router])
+    fetchEventAndReservations()
+  }, [id, router])
 
   if (loading || loadingEvent) {
     return (
@@ -208,7 +210,27 @@ export default function ClassEventDetailPage() {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                     </svg>
                     <span className="text-black">
-                      <strong>最大人数:</strong> {event.maxCapacity}人
+                      <strong>定員:</strong> {event.maxCapacity}人
+                    </span>
+                  </div>
+                  <div className="flex items-center">
+                    <svg className="w-5 h-5 text-black mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    <span className="text-black">
+                      <strong>現在の予約:</strong> {currentReservations}人
+                    </span>
+                  </div>
+                  <div className="flex items-center">
+                    <svg className="w-5 h-5 text-black mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+                    </svg>
+                    <span className="text-black">
+                      <strong>空き状況:</strong>
+                      {currentReservations >= event.maxCapacity
+                        ? ` 定員超過中 (+${currentReservations - event.maxCapacity}人)`
+                        : ` 残り${event.maxCapacity - currentReservations}人`
+                      }
                     </span>
                   </div>
                   <div className="flex items-center">
@@ -232,60 +254,33 @@ export default function ClassEventDetailPage() {
                 <div>
                   <h2 className="text-2xl font-semibold text-black mb-4">予約する</h2>
 
-                  <div className="mb-6">
-                    <label htmlFor="date-select" className="block text-base font-medium text-black mb-2">
-                      日付を選択
-                    </label>
-                    <input
-                      type="date"
-                      id="date-select"
-                      value={selectedDate}
-                      onChange={(e) => setSelectedDate(e.target.value)}
-                      min={new Date().toISOString().split('T')[0]}
-                      className="w-full px-4 py-3 border border-gray-300 focus:outline-none focus:border-black text-black text-lg"
-                    />
-                  </div>
-
-                  <div>
-                    <h3 className="text-lg font-medium text-black mb-3">時間を選択</h3>
-                    <div className="space-y-2">
-                      {timeSlots.map((slot) => (
-                        <button
-                          key={slot.id}
-                          className={`w-full p-4 text-left border transition-colors ${
-                            slot.isAvailable
-                              ? 'border-gray-300 hover:border-black hover:bg-gray-50'
-                              : 'border-gray-200 bg-gray-100 cursor-not-allowed'
-                          }`}
-                          disabled={!slot.isAvailable}
-                          onClick={() => {
-                            router.push(`/classes/${event.id}/book?slot=${slot.id}&date=${selectedDate}`)
-                          }}
-                        >
-                          <div className="flex justify-between items-center">
-                            <div>
-                              <p className="font-medium text-black">
-                                {slot.startTime.toLocaleTimeString('ja-JP', {
-                                  hour: '2-digit',
-                                  minute: '2-digit'
-                                })} - {slot.endTime.toLocaleTimeString('ja-JP', {
-                                  hour: '2-digit',
-                                  minute: '2-digit'
-                                })}
-                              </p>
-                              <p className="text-sm text-black">
-                                {slot.currentBookings}/{slot.maxCapacity}人予約済み
-                              </p>
-                            </div>
-                            {slot.isAvailable ? (
-                              <span className="text-black font-medium">予約可能</span>
-                            ) : (
-                              <span className="text-black">満員</span>
-                            )}
-                          </div>
-                        </button>
-                      ))}
+                  <div className="bg-white border border-gray-200 p-6">
+                    <div className="mb-6">
+                      <h3 className="text-lg font-medium text-black mb-2">予約状況</h3>
+                      {currentReservations >= event.maxCapacity ? (
+                        <div className="bg-yellow-50 border border-yellow-200 p-4">
+                          <p className="text-yellow-800">
+                            <strong>定員超過中</strong> (現在 {currentReservations}人 / 定員 {event.maxCapacity}人)
+                          </p>
+                          <p className="text-sm text-yellow-700 mt-1">
+                            ※ 定員を超えていますが予約は可能です
+                          </p>
+                        </div>
+                      ) : (
+                        <div className="bg-green-50 border border-green-200 p-4">
+                          <p className="text-green-800">
+                            <strong>予約可能です</strong> (現在 {currentReservations}人 / 定員 {event.maxCapacity}人)
+                          </p>
+                        </div>
+                      )}
                     </div>
+
+                    <Link
+                      href={`/classes/${event.id}/book`}
+                      className="w-full bg-black text-white py-4 px-6 font-medium hover:bg-gray-800 transition-colors text-center block text-lg"
+                    >
+                      この出し物を予約する
+                    </Link>
                   </div>
                 </div>
               )}

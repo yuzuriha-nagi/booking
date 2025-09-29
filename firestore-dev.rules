@@ -1,0 +1,9 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 開発用：認証なしでもアクセス可能（セキュリティが低いため本番では使用不可）
+    match /{document=**} {
+      allow read, write: if true;
+    }
+  }
+}
