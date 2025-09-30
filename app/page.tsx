@@ -4,11 +4,14 @@ import AuthButton from '../src/components/AuthButton'
 import AdminSetup from '../src/components/AdminSetup'
 import { useAuth } from '../src/hooks/useAuth'
 import { useUserRole } from '../src/hooks/useUserRole'
+import { usePushNotifications } from '../src/hooks/usePushNotifications'
 import Link from 'next/link'
 
 export default function Home() {
   const { user, logout } = useAuth()
   const { isAdmin } = useUserRole()
+  // プッシュ通知の初期化（ユーザーがログインしている場合のみ）
+  usePushNotifications()
   return (
     <div className="min-h-screen bg-white">
       <header className="bg-white border-b border-gray-200">

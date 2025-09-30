@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Audiowide } from "next/font/google";
 import "./globals.css";
+import HydrationFixProvider from "../src/components/HydrationFixProvider";
 
 const audiowide = Audiowide({
   variable: "--font-audiowide",
@@ -32,7 +33,9 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body
         className={`${audiowide.variable} font-audiowide antialiased`}
+        suppressHydrationWarning
       >
+        <HydrationFixProvider />
         {children}
       </body>
     </html>

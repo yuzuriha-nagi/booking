@@ -99,6 +99,15 @@ export default function BookEventPage() {
 
       await addDoc(collection(db, 'reservations'), reservationData)
 
+      // 予約完了通知を表示
+      if (Notification.permission === 'granted') {
+        new Notification('予約完了', {
+          body: `${event.eventName}の予約が完了しました！\n予約コード: ${reservationData.reservationCode}`,
+          icon: "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3e%3crect width='100' height='100' fill='%23000'/%3e%3ctext x='50' y='55' text-anchor='middle' fill='white' font-size='30' font-family='Arial'%3e予%3c/text%3e%3c/svg%3e",
+          tag: 'reservation-completed'
+        })
+      }
+
       alert(`予約が完了しました！\n予約コード: ${reservationData.reservationCode}`)
       router.push('/classes')
     } catch (error) {
