@@ -8,6 +8,7 @@ import { doc, updateDoc, collection, query, where, getDocs, writeBatch } from 'f
 import { db } from '@/lib/firebase'
 import Link from 'next/link'
 import NotificationSettings from '../../src/components/NotificationSettings'
+import PushNotificationSetup from '../../src/components/PushNotificationSetup'
 
 export default function ProfilePage() {
   const { user, loading } = useAuth()
@@ -202,6 +203,10 @@ export default function ProfilePage() {
 
           <div className="mt-8">
             <NotificationSettings />
+          </div>
+
+          <div className="mt-8">
+            <PushNotificationSetup />
           </div>
         </div>
       </main>
